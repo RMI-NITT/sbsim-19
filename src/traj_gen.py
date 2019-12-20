@@ -4,7 +4,6 @@ from bezier import *
 from fitCurves import *
 import numpy as np
 import matplotlib.pyplot as plt
-
 import sys
 import physics as p
 import pygame as pg

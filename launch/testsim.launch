@@ -5,4 +5,7 @@
   <node pkg="sbsim" name="rules" type="rules.py" output = "screen"/>
   <node pkg="sbsim" name="ik" type="ik.py" output = "screen"/>
   <node pkg="sbsim" name="fk" type="fk.py" output = "screen"/>
+  <node pkg="sbsim" name="traj_gen" type="traj_gen.py"/>
+  <node pkg="sbsim" name="traj_ctrl" type="traj_ctrl.py"/> 
+  <node pkg="sbsim" name="cselect" type="cselect.py" output = "screen"/>
 </launch>

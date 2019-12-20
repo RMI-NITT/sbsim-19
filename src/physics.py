@@ -409,7 +409,7 @@ def collRR(a,b):
         kc = (a.x-b.x)/(a.r+b.r)
         ks = (a.y-b.y)/(a.r+b.r)
         vpa = ux*kc+uy*ks
-        vpd = ux*ks*uy*kc
+        vpd = ux*ks+uy*kc
         vxb = 0.2*(vpa*kc+vpd*ks)
         vyb = 0.2*(vpa*ks+vpd*kc)
         b.xd = vxb + a.xd
