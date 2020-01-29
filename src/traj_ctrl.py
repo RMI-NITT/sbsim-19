@@ -171,28 +171,28 @@ def r10posecallback(msg):
     if r10cs == 2:
         rpose[0].x = msg.position.x
         rpose[0].y = msg.position.y
-        rpose[0].theta = 2*m.tan(msg.orientation.z)
+        (_,_,rpose[0].theta) = tf.transformations.euler_from_quaternion([msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w])
 
 def r11posecallback(msg):
     global rpose
     if r11cs == 2:
         rpose[1].x = msg.position.x
         rpose[1].y = msg.position.y
-        rpose[1].theta = 2*m.tan(msg.orientation.z)
+        (_,_,rpose[1].theta) = tf.transformations.euler_from_quaternion([msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w])
 
 def r20posecallback(msg):
     global rpose
     if r20cs == 2:
         rpose[2].x = msg.position.x
         rpose[2].y = msg.position.y
-        rpose[2].theta = 2*m.tan(msg.orientation.z)
+        (_,_,rpose[2].theta) = tf.transformations.euler_from_quaternion([msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w])
 
 def r21posecallback(msg):
     global rpose
     if r21cs == 2:
         rpose[3].x = msg.position.x
         rpose[3].y = msg.position.y
-        rpose[3].theta = 2*m.tan(msg.orientation.z)
+        (_,_,rpose[3].theta) = tf.transformations.euler_from_quaternion([msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w])
 
 def ballposecallback(msg):
     global bpose
@@ -243,8 +243,11 @@ def run():
     traj_pub_r20 = rospy.Publisher('robot2n0/traj_vect',game, queue_size = 20)
     traj_pub_r21 = rospy.Publisher('robot2n1/traj_vect',game, queue_size = 20)
     rate = rospy.Rate(30)
-    kpc = 1.0
-    kpv = 30
+    kpc = 0
+    kpv = 1
+    kph1 = 0.1
+    kdh1 = 0.1
+    heading_error_1 = 0
     while(True):
         if r10cs == 2:
             '''
@@ -253,8 +256,15 @@ def run():
             r10hp = Pose()
             r10hp.position.x = 0
             r10hp.position.y = 0
+            r10vel = game()
+            r10vel.kx = 0
+            r10vel.ky = 0
+            '''pd Controller for heading'''
+            thetaset_1 = m.atan2((r10hp.position.y-rpose[0].y),(r10hp.position.x-rpose[0].x))
+            diff_1 = (thetaset_1 - rpose[0].theta) - heading_error_1
+            heading_error_1 = (thetaset_1 - rpose[0].theta)
+            r10vel.thetad = kph1*heading_error_1 + kdh1*diff_1
             if len(rpath[0])> 0 and len(rvects[0]) > 0:
-                r10vel = game()
                 l = len(rpath[0])
                 cptr10,indexr10,mindistr10 = closestpt_search(rpath[0],rpose[0])
                 """
@@ -279,20 +289,17 @@ def run():
 
                 r10vel.kx = comp1x + comp2x
                 r10vel.ky = comp1y + comp2y
-                '''p Controller for heading'''
-                kph1 = 0.1
-                thetaset_1 = m.atan2((r10hp.position.y-rpose[0].y),(r10hp.position.x-rpose[0].x))
-                print(thetaset_1, rpose[0].theta,(thetaset_1 - rpose[0].theta))
-                r10vel.thetad = kph1*(thetaset_1 - rpose[0].theta)
 
-                norm = np.sqrt(r10vel.kx**2 + r10vel.ky**2)
-                if not norm == 0:
-                    r10vel.kx /= 0.5*norm
-                    r10vel.ky /= 0.5*norm
-                    r10vel.tag = 0
-                    #if mindistr10 < 1:
-                        #rpath[0].pop(indexr10)
-                    traj_pub_r10.publish(r10vel)
+            norm = np.sqrt(r10vel.kx**2 + r10vel.ky**2)
+            #if not norm == 0:
+            #    r10vel.kx /= 0.5*norm
+            #    r10vel.ky /= 0.5*norm
+            #    r10vel.tag = 0
+                #if mindistr10 < 1:
+                    #rpath[0].pop(indexr10)
+            traj_pub_r10.publish(r10vel)
+            print(r10vel)
+
         if r11cs == 2:
             if len(rpath[1])> 0 and len(rvects[1]) > 0:
                 r11vel = game()

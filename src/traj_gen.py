@@ -148,7 +148,6 @@ def gettraj(pts):
         for t in range(0, 51):
             bz.append(bezier.q(b, t/50.0).tolist())
     bz = np.array(bz)
-    print(bz)
     pli = []
     for i in range(len(bz)):
         single = game()
@@ -192,7 +191,6 @@ def get_traj_all(robot,rpath,ppathr,traj_publ):
         p.append(pts)
         p.reverse()
         p=np.array(p)
-        print(p)
         if len(p) > 1:
             X,Xdot,pti = gettraj(p)
             ppathr.publish(X)
