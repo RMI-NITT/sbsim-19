@@ -34,6 +34,10 @@ robot2n0 = p.robot(x = 0,y= 0,ball=ball2n0)
 ball2n1 = p.ball(x = 0, y = 0)
 robot2n1 = p.robot(x = 0,y= 0,ball=ball2n1)
 
+"""
+program to generate trajectories given goals
+"""
+
 #traj_pub1n0 = rospy.Publisher('robot1n0/traj_vect',game, queue_size = 20)
 traj_publ1n0 = rospy.Publisher('robot1n0/traj_vect_list',path, queue_size = 20)
 ppathr1n0 = rospy.Publisher('robot1n0/path',path,queue_size = 20)
@@ -143,7 +147,6 @@ def gettraj(pts):
         for t in range(0, 51):
             bz.append(bezier.q(b, t/50.0).tolist())
     bz = np.array(bz)
-    print(bz)
     pli = []
     for i in range(len(bz)):
         single = game()
@@ -187,7 +190,6 @@ def get_traj_all(robot,rpath,ppathr,traj_publ):
         p.append(pts)
         p.reverse()
         p=np.array(p)
-        print(p)
         if len(p) > 1:
             X,Xdot,pti = gettraj(p)
             ppathr.publish(X)

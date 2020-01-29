@@ -20,6 +20,11 @@ import matplotlib.pyplot as plt
 import time
 import tf
 
+"""
+program to control robot to make it stay on the trajectory
+publishes twist commands
+"""
+
 flag = 0
 bpose =  Pose()
 d = 0
@@ -166,28 +171,33 @@ def r10posecallback(msg):
     if r10cs == 2:
         rpose[0].x = msg.position.x
         rpose[0].y = msg.position.y
-        rpose[0].theta = 2*m.tan(msg.orientation.z)
+        (_,_,rpose[0].theta) = tf.transformations.euler_from_quaternion([msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w])
 
 def r11posecallback(msg):
     global rpose
     if r11cs == 2:
         rpose[1].x = msg.position.x
         rpose[1].y = msg.position.y
-        rpose[1].theta = 2*m.tan(msg.orientation.z)
+        (_,_,rpose[1].theta) = tf.transformations.euler_from_quaternion([msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w])
 
 def r20posecallback(msg):
     global rpose
     if r20cs == 2:
         rpose[2].x = msg.position.x
         rpose[2].y = msg.position.y
-        rpose[2].theta = 2*m.tan(msg.orientation.z)
+        (_,_,rpose[2].theta) = tf.transformations.euler_from_quaternion([msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w])
 
 def r21posecallback(msg):
     global rpose
     if r21cs == 2:
         rpose[3].x = msg.position.x
         rpose[3].y = msg.position.y
-        rpose[3].theta = 2*m.tan(msg.orientation.z)
+        (_,_,rpose[3].theta) = tf.transformations.euler_from_quaternion([msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w])
+
+def ballposecallback(msg):
+    global bpose
+    bpose.position.x = msg.position.x
+    bpose.position.y = msg.position.y
 
 def findexc(i,l):
     if i > l-2:
@@ -212,6 +222,7 @@ def run():
     global rpose
     rospy.init_node('trajectory_tracking_controller',anonymous=True)
     rospy.Subscriber('robot1n0/cselect',Int32,r10selcallback)
+    rospy.Subscriber('/ballpose',Pose,ballposecallback)
     rospy.Subscriber('robot1n1/cselect',Int32,r11selcallback)
     rospy.Subscriber('robot2n0/cselect',Int32,r20selcallback)
     rospy.Subscriber('robot2n1/cselect',Int32,r21selcallback)
@@ -232,29 +243,63 @@ def run():
     traj_pub_r20 = rospy.Publisher('robot2n0/traj_vect',game, queue_size = 20)
     traj_pub_r21 = rospy.Publisher('robot2n1/traj_vect',game, queue_size = 20)
     rate = rospy.Rate(30)
-    kpc = 0.05
-    kpv = 0.95
+    kpc = 0
+    kpv = 1
+    kph1 = 0.1
+    kdh1 = 0.1
+    heading_error_1 = 0
     while(True):
         if r10cs == 2:
+            '''
+            this section sets the point for the bot to point at(heading control)
+            '''
+            r10hp = Pose()
+            r10hp.position.x = 0
+            r10hp.position.y = 0
+            r10vel = game()
+            r10vel.kx = 0
+            r10vel.ky = 0
+            '''pd Controller for heading'''
+            thetaset_1 = m.atan2((r10hp.position.y-rpose[0].y),(r10hp.position.x-rpose[0].x))
+            diff_1 = (thetaset_1 - rpose[0].theta) - heading_error_1
+            heading_error_1 = (thetaset_1 - rpose[0].theta)
+            r10vel.thetad = kph1*heading_error_1 + kdh1*diff_1
             if len(rpath[0])> 0 and len(rvects[0]) > 0:
-                r10vel = game()
                 l = len(rpath[0])
                 cptr10,indexr10,mindistr10 = closestpt_search(rpath[0],rpose[0])
+                """
+                cptr10 closest point on trajectory from robot
+                indexr10 index of closest point on the trajectory
+                mindistr10 distance of closest point on the trajetory
+                vectr10 tangent of trajectory curve
+                comp1x component 1 x tangential component
+                comp2x component 2 x correctional component
+                comp1y component 1 y tangential component
+                comp2y component 2 y correctional component
+                """
                 vectr10 = rvects[0][indexr10]
                 comp1x = findexv(indexr10,l)*kpv*vectr10[0]
-                comp2x = kpc*findexc(indexr10,l)*(cptr10[0] - rpose[0].x)
                 comp1y = findexv(indexr10,l)*kpv*vectr10[1]
-                comp2y = kpc*findexc(indexr10,l)*(cptr10[1] - rpose[0].y)
+                if(not (cptr10[0] - rpose[0].x)==0 and not(cptr10[1] - rpose[0].y)==0):
+                    comp2x = kpc*findexc(indexr10,l)*(cptr10[0] - rpose[0].x)**3/abs((cptr10[0] - rpose[0].x)*10)
+                    comp2y = kpc*findexc(indexr10,l)*(cptr10[1] - rpose[0].y)**3/abs((cptr10[1] - rpose[0].y)*10)
+                else:
+                    comp2x = kpc*findexc(indexr10,l)*(cptr10[0] - rpose[0].x)
+                    comp2y = kpc*findexc(indexr10,l)*(cptr10[1] - rpose[0].y)
+
                 r10vel.kx = comp1x + comp2x
                 r10vel.ky = comp1y + comp2y
-                norm = np.sqrt(r10vel.kx**2 + r10vel.ky**2)
-                if not norm == 0:
-                    r10vel.kx /= 0.5*norm
-                    r10vel.ky /= 0.5*norm
-                    r10vel.tag = 0
-                    #if mindistr10 < 1:
-                        #rpath[0].pop(indexr10)
-                    traj_pub_r10.publish(r10vel)
+
+            norm = np.sqrt(r10vel.kx**2 + r10vel.ky**2)
+            #if not norm == 0:
+            #    r10vel.kx /= 0.5*norm
+            #    r10vel.ky /= 0.5*norm
+            #    r10vel.tag = 0
+                #if mindistr10 < 1:
+                    #rpath[0].pop(indexr10)
+            traj_pub_r10.publish(r10vel)
+            print(r10vel)
+
         if r11cs == 2:
             if len(rpath[1])> 0 and len(rvects[1]) > 0:
                 r11vel = game()

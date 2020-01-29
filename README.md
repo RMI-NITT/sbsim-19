@@ -9,10 +9,15 @@
 
 <br>
 <h2> Work done </h2>
-
-
-![Alt](sbsim.png "Node structure")
-
+<img src="rosgraph.png">
+<br>
+<h3>3 controller implementation</h3>
+<p>Point to point control</p>
+<img src="p2p.gif">
+<p>Trajectory Tracking control</p>
+<img src="traj_tracking.gif">
+<p>3 wheel independent control</p>
+<img src="extremal.gif">
 
 <h3> Proposed Rules For the game:</h3>
     * Robot's ball possession is legal only for x distance travelled. (x is tbd) <br/>
@@ -31,3 +36,4 @@
 <h3> Took data from stateserver and was able display as a simulation of the soccebots </h3>
     * Subscribes to geometry_msgs/Pose messages of ball pose, robot poses <br/>
     * Used pygame to simulate the environment <br/>
+
