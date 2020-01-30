@@ -248,6 +248,7 @@ def run():
     kph1 = 0.1
     kdh1 = 0.1
     heading_error_1 = 0
+    i0=0
     while(True):
         if r10cs == 2:
             '''
@@ -286,9 +287,16 @@ def run():
                 else:
                     comp2x = kpc*findexc(indexr10,l)*(cptr10[0] - rpose[0].x)
                     comp2y = kpc*findexc(indexr10,l)*(cptr10[1] - rpose[0].y)
-
-                r10vel.kx = comp1x + comp2x
-                r10vel.ky = comp1y + comp2y
+                #publishes velocity until the last point is reached and then it is set to zero
+                if(i0<=l):
+                    r10vel.kx = comp1x + comp2x
+                    r10vel.ky = comp1y + comp2y
+                    i0+=1
+                else:
+                    r10vel.kx =0
+                    r10vel.ky =0
+                    r10vel.thetad=0
+                print(r10vel)
 
             norm = np.sqrt(r10vel.kx**2 + r10vel.ky**2)
             #if not norm == 0:
@@ -298,7 +306,7 @@ def run():
                 #if mindistr10 < 1:
                     #rpath[0].pop(indexr10)
             traj_pub_r10.publish(r10vel)
-            print(r10vel)
+            
 
         if r11cs == 2:
             if len(rpath[1])> 0 and len(rvects[1]) > 0:

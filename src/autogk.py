@@ -67,13 +67,13 @@ def summa():
     global d
     global gs
     rospy.init_node('autogk',anonymous=True)
-    r1 = rospy.Publisher('robot2n1/ptg',goalmsg, queue_size = 10)
+    r1 = rospy.Publisher('bot/ptg',goalmsg, queue_size = 10)
     rospy.Subscriber('ballpose', Pose, bcallback)
-    rospy.Subscriber('robot1n0/pose', Pose, botcallback)    
+    rospy.Subscriber('bot1/pose', Pose, botcallback)    
     rospy.Subscriber('balltwist', Twist, btcallback)
     rospy.Subscriber('game/dribbler', Int32, dcallback)
     rospy.Subscriber('game/status', Int32, gcallback)
-    rospy.Subscriber('robot2n1/reached',Int32,callback)
+    rospy.Subscriber('bot4/reached',Int32,callback)
     updatebpose(bpose,ball)
     updatebtwist(btwist,ball)
     r = goalmsg()
