@@ -1,0 +1,10 @@
+<launch>
+
+  <node pkg="sbsim" name="displayer" type="display.py" output = "screen"/>
+  <node pkg="sbsim" name="Solver" type="grid_find.py" output = "screen"/>
+  <node pkg="sbsim" name="stateserver1" type="stateserver_new.py" output = "screen"/>
+  <node pkg="sbsim" name="new_control" type="p2pctrl.py" output = "screen"/>
+  <node pkg="sbsim" name="rules" type="rules.py" output = "screen"/>
+]
+  
+</launch>
