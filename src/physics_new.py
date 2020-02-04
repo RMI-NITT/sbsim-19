@@ -25,11 +25,13 @@ class ball:
     i : flag
     """
     #cm to pixel conversion for factor for dimensions=2.52
-    def __init__(self,x=0,y=0,xd=0,yd=0,xdd=0,ydd=0):
+    def __init__(self,x=0,y=0,xd=0,yd=2.0,xdd=1.0,ydd=-1.0):
         self.x =x
         self.y = y
         self.xd =xd
         self.yd = yd
+        self.xdd=xdd
+        self.ydd=ydd
         self.cr = 1
         self.r = 5.67
         self.nu = 1
@@ -37,6 +39,16 @@ class ball:
         self.vthresh = 1
         self.mflag = 0
         self.i = 0
+
+    def finalptcotrl(self,x,y):
+        if(self.xd<0):
+            self.xd=self.xd+self.xdd*0.01
+        else:
+            self.xd=0
+        if(self.yd>0):
+            self.yd=self.yd+self.ydd*0.01
+        else:
+            self.yd=0      
 
     def updatestate(self,d):
         """

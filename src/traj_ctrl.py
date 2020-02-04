@@ -259,11 +259,35 @@ def run():
             r10vel = game()
             r10vel.kx = 0
             r10vel.ky = 0
-            '''pd Controller for heading'''
-            thetaset_1 = m.atan2((r10hp.position.y-rpose[0].y),(r10hp.position.x-rpose[0].x))
+            #pd Controller for heading
+            thtg = m.atan2((r10hp.position.y-rpose[0].y),(r10hp.position.x-rpose[0].x))
+            """if(( thetaset_1 >=(m.pi)) and (thetaset_1 < (0.95*m.pi))):
+                thetaset_1= abs(thetaset_1)
             diff_1 = (thetaset_1 - rpose[0].theta) - heading_error_1
             heading_error_1 = (thetaset_1 - rpose[0].theta)
-            r10vel.thetad = kph1*heading_error_1 + kdh1*diff_1
+            r10vel.thetad = kph1*heading_error_1 + kdh1*diff_1"""
+            
+            while(thtg<0):
+                if thtg<0:
+                    thtg = 6.28+thtg
+                else:
+                    break
+            while(thtg>6.28):
+                if thtg>6.28:
+                    thtg = thtg - 6.28
+                else:
+                    break
+            if (abs(thtg-rpose[0].theta)>0.1 and thtg <= 6.28 and thtg >= 0):
+                if(abs(thtg-rpose[0].theta)<(6.28-abs(thtg-rpose[0].theta))):
+                    f = (thtg-rpose[0].theta)/abs(thtg-rpose[0].theta)
+                    e = abs(thtg-rpose[0].theta)
+                    r10vel.thetad = (e*kph1)*(f)
+                else:
+                    f = (thtg-rpose[0].theta)/abs(thtg-rpose[0].theta)
+                    e = 6.28 - abs(thtg-rpose[0].theta)
+                    r10vel.thetad = -((e*kph1))*(f)        
+            else:
+                r10vel.thetad = 0
             if len(rpath[0])> 0 and len(rvects[0]) > 0:
                 l = len(rpath[0])
                 cptr10,indexr10,mindistr10 = closestpt_search(rpath[0],rpose[0])
@@ -286,9 +310,10 @@ def run():
                 else:
                     comp2x = kpc*findexc(indexr10,l)*(cptr10[0] - rpose[0].x)
                     comp2y = kpc*findexc(indexr10,l)*(cptr10[1] - rpose[0].y)
-
+            
                 r10vel.kx = comp1x + comp2x
                 r10vel.ky = comp1y + comp2y
+                
 
             norm = np.sqrt(r10vel.kx**2 + r10vel.ky**2)
             #if not norm == 0:
@@ -298,7 +323,7 @@ def run():
                 #if mindistr10 < 1:
                     #rpath[0].pop(indexr10)
             traj_pub_r10.publish(r10vel)
-            print(r10vel)
+            
 
         if r11cs == 2:
             if len(rpath[1])> 0 and len(rvects[1]) > 0:

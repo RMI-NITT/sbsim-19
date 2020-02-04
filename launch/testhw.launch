@@ -1,0 +1,5 @@
+<launch>
+	<node pkg="sbsim" name="p2pctrl" type="p2pctrl.py" output = "screen"/>
+	<node pkg="sbsim" name="traj_gen" type="traj_gen.py"/>
+	<node pkg="sbsim" name="traj_ctrl" type="traj_ctrl.py"/> 
+</launch>
