@@ -243,10 +243,10 @@ def run():
     traj_pub_r20 = rospy.Publisher('robot2n0/traj_vect',game, queue_size = 20)
     traj_pub_r21 = rospy.Publisher('robot2n1/traj_vect',game, queue_size = 20)
     rate = rospy.Rate(30)
-    kpc = 0
-    kpv = 1
+    kpc = 0.0001
+    kpv = 0.013
     kph1 = 0.1
-    kdh1 = 0.1
+    kdh1 = 0.2
     heading_error_1 = 0
     while(True):
         if r10cs == 2:
