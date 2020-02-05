@@ -126,7 +126,6 @@ def pid(xtg,ytg,bot,thtg):
     ctrl.ky=ky
     ctrl.thetad=thetad
     ctrl.tag=tag
-    print(ctrl)
     pid_ctrl.publish(ctrl)
 
 def r10tcallback(msg):
