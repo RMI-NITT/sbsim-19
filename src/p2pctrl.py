@@ -80,7 +80,7 @@ def dribcallback(msg):
         r2[1].dribble=0
 
 
-def pid(xtg,ytg,bot,thtg=0):
+def pid(xtg,ytg,bot,thtg):
     prod = 0.10
     kpp = 0.3
     kpv = prod/kpp
@@ -126,6 +126,7 @@ def pid(xtg,ytg,bot,thtg=0):
     ctrl.ky=ky
     ctrl.thetad=thetad
     ctrl.tag=tag
+    print(ctrl)
     pid_ctrl.publish(ctrl)
 
 def r10tcallback(msg):

@@ -52,6 +52,8 @@ def find_sol():
     global k,vel_r,vel_b,x_r,y_r,x_b,y_b,xd,yd,dat,xc,i
     xc=x_b
     yc=y_b
+    thtg = ma.atan2((y_b-y_r),(x_b-x_r))
+    q = quaternion_from_euler(0,0,thtg)
     if(vel_b):
         if(not(vel_r)):
             vel_r=0.5
@@ -79,14 +81,14 @@ def find_sol():
                 xc=xc2
                 yc=yc2
         dat.status=1
-        dat.posetogo = Pose(Point(xc,yc,0), Quaternion(0,0,0,1))
+        dat.posetogo = Pose(Point(xc,yc,0), Quaternion(0,0,q[2],q[3]))
         if((xc<-340)or(xc>340)or(yc>303)or(yc<-303)):
             pass
         else :
             sol_pub.publish(dat)
     else:
         dat.status=1
-        dat.posetogo = Pose(Point(x_b,y_b,0), Quaternion(0,0,0,1))
+        dat.posetogo = Pose(Point(x_b,y_b,0),Quaternion(0,0,q[2],q[3]))
         sol_pub.publish(dat)
         
 

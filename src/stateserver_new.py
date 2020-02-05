@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import rospy
-import physics as p
+import physics_new as p
 import math as m
 from geometry_msgs.msg import Pose, Twist
 from sbsim.msg import goalmsg
